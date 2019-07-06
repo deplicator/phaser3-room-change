@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Room Change Example</title>
+    <script src="libs/phaser.js"></script> <!-- Phaser 3! -->
+</head>
+<body>
+
+    <script src="game/gameConfig.js"></script>
+    <script src="game/Level.js"></script>
+    <script src="game/Player.js"></script>
+
+    <script>
+
+        /**
+         * Class representing the game object (https://photonstorm.github.io/phaser3-docs/Phaser.Game.html).
+         * @extends Phaser.Game
+         */
+        class Game extends Phaser.Game {
+
+            /**
+             * Create the player.
+             * @param {object} config - Phaser game config.
+             */
+            constructor(config) {
+                super(config);
+                this.scene.add('level', Level, true);
+            }
+        }
+
+        // Start the game.
+        let game = new Game(config);
+    </script>
+
+</body>
+
+</html>
