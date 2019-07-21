@@ -50,7 +50,7 @@ const config = {
         keyboard: true,     //Keyboard input configuration. true uses the default configuration and false disables keyboard input.
         mouse: true,        //Mouse input configuration. true uses the default configuration and false disables mouse input.
         touch: true,        //Touch input configuration. true uses the default configuration and false disables touch input.
-        gamepad: false,     //Gamepad input configuration. true enables gamepad input.
+        gamepad: true,      //Gamepad input configuration. true enables gamepad input.
         activePointers: 1,  //The maximum number of touch pointers. See Phaser.Input.InputManager#pointers.
         smoothFacto: 0,     //The smoothing factor to apply during Pointer movement. See Phaser.Input.Pointer#smoothFactor.
         inputQueue: false,  //Should Phaser use a queued input system for native DOM Events or not?

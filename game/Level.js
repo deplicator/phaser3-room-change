@@ -88,6 +88,11 @@ class Level extends Phaser.Scene {
 
         // start camera
         this.cameras.main.startFollow(this.player);
+
+        // Listener for gamepad detection.
+        this.input.gamepad.once('down', function (pad, button, index) {
+            this.gamepad = pad;
+        }, this);
     }
 
     /** Update called every tick. */

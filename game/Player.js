@@ -30,7 +30,7 @@ class Player extends Phaser.GameObjects.Sprite {
         this.body.setSize(8, 8, false);
         this.body.setCircle(4);
 
-        this.keys = scene.input.keyboard.addKeys('W,S,A,D,SPACE');
+        this.keys = scene.input.keyboard.addKeys('W,S,A,D,UP,LEFT,RIGHT,DOWN');
 
         this.lastAnim = null;﻿
         this.vel = 200;
@@ -105,24 +105,30 @@ class Player extends Phaser.GameObjects.Sprite {
         if (this.direction === 'left') { currentDirection = 'right'; } //account for flipped sprite
         animationName ﻿= 'stand-' + currentDirection;
 
+        // all the ways the player can move.
+        let left  = this.keys.A.isDown || this.keys.LEFT.isDown  || this.scene.gamepad && this.scene.gamepad.left;
+        let right = this.keys.D.isDown || this.keys.RIGHT.isDown || this.scene.gamepad && this.scene.gamepad.right;
+        let up    = this.keys.W.isDown || this.keys.UP.isDown    || this.scene.gamepad && this.scene.gamepad.up;
+        let down  = this.keys.S.isDown || this.keys.DOWN.isDown  || this.scene.gamepad && this.scene.gamepad.down;
+
         // moving
-        if (this.keys.A.isDown) {
-            this.direction = 'right';
+        if (left) {
+            this.direction = 'left';
             this.body.setVelocityX(-this.vel);
             animationName = "walk-right";
             this.setFlipX(true);
-        } else if (this.keys.D.isDown) {
-            this.direction = 'left';
+        } else if (right) {
+            this.direction = 'right';
             this.body.setVelocityX(this.vel);
             animationName = "walk-right";
             this.setFlipX(false);
         }
 
-        if (this.keys.W.isDown) {
+        if (up) {
             this.direction = 'up';
             this.body.setVelocityY(-this.vel);
             animationName = 'walk-up';
-        } else if (this.keys.S.isDown) {
+        } else if (down) {
             this.direction = 'down';
             this.body.setVelocityY(this.vel);
             animationName = 'walk-down';
