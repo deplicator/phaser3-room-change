@@ -88,14 +88,6 @@ class Level extends Phaser.Scene {
         // start camera
         this.cameras.main.setZoom(2.0);
 
-        /* Potential Phaser 3 bug: fade effects seem to be limited by the camera width and height
-        (I'm gussing that is what _ch and _cw variabels are), these look like they are set by the
-        game config width and height instead of the camera boundaries. I'm setting them to match the
-        level so fade effects cover everwhere the camerea could possibly be. Weird side note: with
-        arcade physics debug on this doesn't seem to be a problem. */
-        this.cameras.main._ch = this.map.heightInPixels;
-        this.cameras.main._cw = this.map.widthInPixels;
-
         // Set first room boundaries.
         this.cameras.main.setBounds(this.rooms[this.player.currentRoom].x,
                                     this.rooms[this.player.currentRoom].y,
@@ -115,6 +107,15 @@ class Level extends Phaser.Scene {
 
     /** Update called every tick. */
     update(time, delta) {
+
+        /* Potential Phaser 3 bug: fade effects seem to be limited by the camera width and height
+        (I'm gussing that is what _ch and _cw variabels are), these look like they are set by the
+        game config width and height instead of the camera boundaries. I'm setting them to match the
+        level so fade effects cover everwhere the camerea could possibly be. Moved from create so
+        fade works after screen resize.
+        Weird side note: with arcade physics debug on this doesn't seem to be a problem. */
+        this.cameras.main._ch = this.map.heightInPixels;
+        this.cameras.main._cw = this.map.widthInPixels;
 
         // On player room change, stop player movement, fade camerea, and set boundaries.
         if (this.player.roomChange) {
@@ -140,7 +141,6 @@ class Level extends Phaser.Scene {
             }, this);
         }
     }
-
 
     roomStart(roomNumber) {
         if (roomNumber == 4) {
