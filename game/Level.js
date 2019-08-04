@@ -16,12 +16,12 @@ class Level extends Phaser.Scene {
         this.load.spritesheet({
             key: 'player',
             url: "game/assets/player.png",
-            frameConfig: {frameWidth: 21,
-                          frameHeight: 26,
-                          startFrame: 0,
-                          endFrame: 12,
-                          margin: 1,
-                          spacing: 0}
+            frameConfig: {frameWidth: 21,  //The width of the frame in pixels.
+                          frameHeight: 26, //The height of the frame in pixels. Uses the frameWidth value if not provided.
+                          startFrame: 0,   //The first frame to start parsing from.
+                          endFrame: 12,    //The frame to stop parsing at. If not provided it will calculate the value based on the image and frame dimensions.
+                          margin: 0,       //The margin in the image. This is the space around the edge of the frames.
+                          spacing: 0}      //The spacing between each frame in the image.
         });
 
         // Level tiles and data.
@@ -37,7 +37,7 @@ class Level extends Phaser.Scene {
         this.map = this.make.tilemap({key: "level-1"});
 
         // Define tiles used in map.
-        const tileset = this.map.addTilesetImage("dungeon_tiles_2",  "tiles", 16, 16,);
+        const tileset = this.map.addTilesetImage("dungeon_tiles_2",  "tiles", 16, 16);
 
         // The map layers.
         this.floorLayer = this.map.createStaticLayer("floor",        tileset);
@@ -85,9 +85,27 @@ class Level extends Phaser.Scene {
             this.player.onStairs = true;
         }, null, this);
 
-
         // start camera
+        this.cameras.main.setZoom(2.0);
+
+        /* Potential Phaser 3 bug: fade effects seem to be limited by the camera width and height
+        (I'm gussing that is what _ch and _cw variabels are), these look like they are set by the
+        game config width and height instead of the camera boundaries. I'm setting them to match the
+        level so fade effects cover everwhere the camerea could possibly be. Weird side note: with
+        arcade physics debug on this doesn't seem to be a problem. */
+        this.cameras.main._ch = this.map.heightInPixels;
+        this.cameras.main._cw = this.map.widthInPixels;
+
+        // Set first room boundaries.
+        this.cameras.main.setBounds(this.rooms[this.player.currentRoom].x,
+                                    this.rooms[this.player.currentRoom].y,
+                                    this.rooms[this.player.currentRoom].width,
+                                    this.rooms[this.player.currentRoom].height,
+                                    true);
+
         this.cameras.main.startFollow(this.player);
+
+        this.cameras.main.fadeIn(2000, 0, 0, 0);
 
         // Listener for gamepad detection.
         this.input.gamepad.once('down', function (pad, button, index) {
@@ -98,13 +116,35 @@ class Level extends Phaser.Scene {
     /** Update called every tick. */
     update(time, delta) {
 
-        // Change camera boundaries when player moves to new room.
+        // On player room change, stop player movement, fade camerea, and set boundaries.
         if (this.player.roomChange) {
-            this.cameras.main.setBounds(this.rooms[this.player.currentRoom].x,
-                                        this.rooms[this.player.currentRoom].y,
-                                        this.rooms[this.player.currentRoom].width,
-                                        this.rooms[this.player.currentRoom].height,
-                                        true);
+
+            this.cameras.main.fadeOut(250, 0, 0, 0, function(camera, progress) {
+                this.player.canMove = false;
+                if (progress === 1) {
+                    // Change camera boundaries when fade out complete.
+                    this.cameras.main.setBounds(this.rooms[this.player.currentRoom].x,
+                                                this.rooms[this.player.currentRoom].y,
+                                                this.rooms[this.player.currentRoom].width,
+                                                this.rooms[this.player.currentRoom].height,
+                                                true);
+
+                    // Fade back in with new boundareis.
+                    this.cameras.main.fadeIn(500, 0, 0, 0, function(camera, progress) {
+                        if (progress === 1) {
+                            this.player.canMove = true;
+                            this.roomStart(this.player.currentRoom);
+                        }
+                    }, this);
+                }
+            }, this);
+        }
+    }
+
+
+    roomStart(roomNumber) {
+        if (roomNumber == 4) {
+            this.cameras.main.shake(2500, 0.001, true);
         }
     }
 }

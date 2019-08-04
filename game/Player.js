@@ -15,9 +15,10 @@ class Player extends Phaser.GameObjects.Sprite {
         super(scene, x, y, frame);
 
         this.scene = scene;
-        this.currentRoom = null;
+        this.currentRoom = 1;       // Set start room so room change flag doens't fire.
         this.previousRoom = null;
         this.roomChange = false;
+        this.canMove = true;
 
         scene.physics.world.enable(this);
         scene.add.existing(this);
@@ -26,11 +27,10 @@ class Player extends Phaser.GameObjects.Sprite {
         this.setPosition(x, y);
 
         this.body.setCollideWorldBounds(true);
-        this.body.setOffset(4, 16);
-        this.body.setSize(8, 8, false);
-        this.body.setCircle(4);
+        this.body.setOffset(7, 16);
+        this.body.setCircle(3);
 
-        this.keys = scene.input.keyboard.addKeys('W,S,A,D,UP,LEFT,RIGHT,DOWN');
+        this.keys = scene.input.keyboard.addKeys('W,S,A,D,UP,LEFT,RIGHT,DOWN,SPACE');
 
         this.lastAnim = null;﻿
         this.vel = 200;
@@ -111,32 +111,34 @@ class Player extends Phaser.GameObjects.Sprite {
         let up    = this.keys.W.isDown || this.keys.UP.isDown    || this.scene.gamepad && this.scene.gamepad.up;
         let down  = this.keys.S.isDown || this.keys.DOWN.isDown  || this.scene.gamepad && this.scene.gamepad.down;
 
-        // moving
-        if (left) {
-            this.direction = 'left';
-            this.body.setVelocityX(-this.vel);
-            animationName = "walk-right";
-            this.setFlipX(true);
-        } else if (right) {
-            this.direction = 'right';
-            this.body.setVelocityX(this.vel);
-            animationName = "walk-right";
-            this.setFlipX(false);
-        }
+        if (this.canMove) {
+            // moving
+            if (left) {
+                this.direction = 'left';
+                this.body.setVelocityX(-this.vel);
+                animationName = "walk-right";
+                this.setFlipX(true);
+            } else if (right) {
+                this.direction = 'right';
+                this.body.setVelocityX(this.vel);
+                animationName = "walk-right";
+                this.setFlipX(false);
+            }
 
-        if (up) {
-            this.direction = 'up';
-            this.body.setVelocityY(-this.vel);
-            animationName = 'walk-up';
-        } else if (down) {
-            this.direction = 'down';
-            this.body.setVelocityY(this.vel);
-            animationName = 'walk-down';
-        }
+            if (up) {
+                this.direction = 'up';
+                this.body.setVelocityY(-this.vel);
+                animationName = 'walk-up';
+            } else if (down) {
+                this.direction = 'down';
+                this.body.setVelocityY(this.vel);
+                animationName = 'walk-down';
+            }
 
-        if(this.lastAnim !== animationName) {
-            this.lastAnim = animationName;
-            this.anims.play(animationName, true);
+            if(this.lastAnim !== animationName) {
+                this.lastAnim = animationName;
+                this.anims.play(animationName, true);
+            }
         }
 
         // Stairs
@@ -151,11 +153,11 @@ class Player extends Phaser.GameObjects.Sprite {
         this.body.velocity.normalize().scale(this.vel);
 
         // Check for room change.
-        this.roomCheck();
+        this.getRoom();
     }
 
-    /** Updates player's current and previous room, flags rooms player has entered. */
-    roomCheck() {
+    /** Returns player's current and previous room, flags rooms player has entered. */
+    getRoom() {
 
         // place holder for current room.
         let roomNumber;
